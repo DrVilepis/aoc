@@ -8,7 +8,7 @@ groups xs
 
 solve :: [Int] -> Int
 solve xs = length 
-    $ filter (\(x,y) -> (x < y)) 
+    $ filter (\(x,y) -> x<y)
     $ (\l -> zip l (tail l)) 
     $ map (sum)
     $ groups xs

@@ -1,13 +1,14 @@
-solve :: [String] -> Int
-solve s = do
-    let (x,y,z) = foldl (.\(aim,depth,d) s -> if (head $ words s) == "up" 
-            then (aim - (read $ last $ words s),depth,d) 
-        else if (head $ words s) == "down" 
-            then (aim + (read $ last $ words s),depth,d) 
-        else if (head $ words s) == "forward" 
-            then (\x -> (aim,depth+(aim*x),d+x)) $ read $ last $ words s 
-        else (aim,depth,x)) (0,0,0) s
-    y*z
 
+solve :: [String] -> Int
+solve s = (\(_,x,y) -> x*y) $ foldl (\(aim,depth,d) s -> if (dir s) == "up"
+            then (aim - (num s),depth,d)
+        else if (dir s) == "down"
+            then (aim + (num s),depth,d)
+        else if (head $ words s) == "forward"
+            then (\x -> (aim,depth+(aim*x),d+x)) $ num s
+        else (aim,depth,d)) (0,0,0) s
+    where 
+        num = read . last . words 
+        dir = head . words
 
 main = interact $ show . solve . lines
