@@ -1,4 +1,5 @@
 solve :: [Int] -> Int
-solve xs = length $ filter (\(x,y) -> x < y) $ zip xs (tail xs)
+solve xs = length $ filter (uncurry (<)) $ zip xs (tail xs)
 
+main :: IO ()
 main = interact $ show . solve . map (read) . lines
