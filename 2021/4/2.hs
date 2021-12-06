@@ -8,28 +8,29 @@ split s = case dropWhile (==',') s of
 
 parse :: [String] -> [[[Int]]]
 parse xs
-    | length xs > 5 = (map (map (read) . words) $ take 5 xs):(parse $ drop 6 xs)
-    | otherwise = (map (map (read) . words) $ take 5 xs)
+    | length xs > 5 = board:(parse $ drop 6 xs)
+    | otherwise = [board]
+    where
+        board = map (map (read) . words) $ take 5 xs
     
-play :: [[[Int]]] -> [[Int]] -> Int
-play boards nums = do
-    let (x,y) = partition (\x -> (fst $ checkWin x $ head nums)) boards
-    if length y == 0 && length x == 1 then
-        snd $ checkWin (head x) $ head nums
-    else
-        play y $ tail nums
+play :: [[[Int]]] -> [Int] -> Int
+play boards nums
+    | length x > 1 = play x $ tail nums
+    | otherwise = (head nums) * (checkWin $ head y)
+    where 
+        (x,y) = partition ((== -1) . checkWin) $ map (flip checkNums (head nums)) boards
     
-checkWin :: [[Int]] -> [Int] -> (Bool,Int)
-checkWin board nums = do 
-    let filtered = map (map(\x -> if any (==x) nums then -1 else x)) board
-    let winner = (\x -> (any (all (==(-1))) x) || (any (all (==(-1))) $ transpose x)) filtered :: Bool
-    (winner,if winner then (*last nums) $ sum $ filter (>=0) $ concat filtered else 0)
+checkNums :: [[Int]] -> Int -> [[Int]]
+checkNums board n = map (map (\x -> if (x==n) then -1 else x)) board
+
+checkWin :: [[Int]] -> Int
+checkWin xs = if (any (all (== -1)) xs) || (any (all (== -1)) $ transpose xs) then sum $ filter (>=0) $ concat xs else -1
 
 solve :: [String] -> Int
 solve xs = do
-    let nums = map (read) $ split $ head xs :: [Int]
+    let nums = map (read) $ split $ head xs
     let boards = parse $ drop 2 xs
-    play boards $ tail $ inits $ nums
+    play boards nums
 
 main :: IO ()
 main = interact $ show . solve . lines
